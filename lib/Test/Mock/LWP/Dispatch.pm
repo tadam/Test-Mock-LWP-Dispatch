@@ -11,13 +11,37 @@ Test::Mock::LWP::Dispatch - mocks LWP::UserAgent and dispatches your requests/re
 
   # in your *.t
   use Test::Mock::LWP::Dispatch;
-  use LWP::UserAgent;
+  use HTTP::Response;
+
+  # global mappings for requests and responses for LWP::UserAgent
+  $mock_ua->map('http://example.com', HTTP::Response->new(...));
+  # or
+  $mock_ua->map(qr!^http://example.com/page!, sub { my $request = shift;
+                                                    # ... create $response
+                                                    return $response; });
+
+  # or make local mappings
+  my $ua = LWP::UserAgent->new;
+  $ua->map(...);
 
 =head1 DESCRIPTION
 
+This module intends for testing a code that heavily uses LWP::UserAgent.
+
+Assume that function you want to test makes three different request to the server
+and expects to get some content from the server. To test this function you should
+setup request/response mappings for mocked UserAgent and test it.
+
+For doing something with mappings, here are methods C<map>, C<unmap> and C<unmap_all>. For controlling context of these mappings (is it applies for all created in your
+code LWP::UserAgent's or only to one specific?) you should call these functions
+for exported C<$mock_ua> object (global mapping) or for newly created LWP::UserAgent (local mappings).
+
+See also on L<Test::Mock::LWP>, it provides mocked LWP objects for you, so probably
+you can solve your problems with this module too.
+
 =cut
 
-use base qw(Exporter);
+use base qw(Exporter Test::MockObject);
 
 our $VERSION = 0.0.1;
 our @EXPORT = qw($mock_ua);
@@ -39,7 +63,16 @@ BEGIN {
 
 =over 4
 
-=item request
+=item request($req)
+
+This is only method of LWP::UserAgent that mocked. When you make $ua->get(...)
+or $ua->head(...) or just get() from LWP::Simple, at some point calls
+C<request()> method. So for controlling responses to your requests it is only method needed to mock.
+
+In this module C<request()> loops through your local and global mappings (in this order) and returns response on a first matched mapping. If no matched C<request()>
+return HTTP::Response with 404 code.
+
+Be accurate: method loops through mappings in order of adding these mappings.
 
 =cut
 
@@ -47,9 +80,10 @@ BEGIN {
         my $mo = shift;
         my $in_req = shift;
 
-        my $maps = $mo->{_maps} || [];
+        my $global_maps = $mock_ua->{_maps} || [];
+        my $local_maps = $mo->{_maps} || [];
         my $matched_resp = $default_resp;
-        foreach my $map (@{$maps}) {
+        foreach my $map (@{$local_maps}, @{$global_maps}) {
             next unless (defined($map));
             my ($req, $resp) = @{$map};
 
@@ -79,12 +113,63 @@ BEGIN {
         }
     }
 
-=item map
+=item map($req_descr, $resp_descr)
+
+Using this method you can say what response should be on what request.
+
+If you call this method for exported C<$mock_ua> it will make global mappings
+applied for all newly created LWP::UserAgent's. If you call this method for
+separate LWP::UserAgent you created, then this mapping will work only for
+this object.
+
+Request description C<$req_descr> can be:
+
+=over 4
+
+=item string
+
+Uri for exact matching with incoming request uri in C<request()>.
+
+=item regexp
+
+Regexp on what incoming request uri will match.
+
+=item code
+
+You can pass arbitrary coderef, that takes incoming HTTP::Request and returns
+true if this request matched.
+
+=item HTTP::Request object
+
+If you pass such object, then request will compare that incoming request
+exactly the same that you passed in C<map()> (this means, that all query
+parameters, all headers and so on must be identical).
+
+=back
+
+Response description C<$resp_descr>, that will be returned if incoming request
+to C<request()> matches with C<$req_descr>, can be:
+
+=over 4
+
+=item HTTP::Response object
+
+Ready to return HTTP::Response object.
+
+=item code
+
+Arbitrary coderef, that takes incoming request as parameter and returns
+HTTP::Response object.
+
+=back
+
+Method returns index of your mapping. You can use it in C<unmap>.
 
 =cut
 
     sub map {
         my $mo = shift;
+
         my ($req, $resp) = @_;
         if (!defined($req) || !defined($resp)) {
             croak "You should pass 2 arguments in map()";
@@ -101,7 +186,9 @@ BEGIN {
         return scalar(@{$mo->{_maps}}) - 1;
     }
 
-=item unmap
+=item unmap($map_index)
+
+Deletes some mapping by index.
 
 =cut
 
@@ -123,6 +210,8 @@ BEGIN {
 
 =item unmap_all
 
+Deletes all mappings.
+
 =back
 
 =cut
@@ -134,6 +223,7 @@ BEGIN {
     }
 
     $mock_ua = Test::MockObject->new;
+    bless $mock_ua, __PACKAGE__;
     $mock_ua->fake_module(
         'LWP::UserAgent',
          request   => \&request,
@@ -146,6 +236,11 @@ BEGIN {
 1;
 
 __END__
+
+=head1 MISCELLANEOUS
+
+This mock object doesn't call C<fake_new()>. So when you prepare response using
+coderef, you can be sure, that "User-Agent" header will be untouched and so on.
 
 =head1 AUTHORS
 
@@ -160,6 +255,7 @@ under the same terms as Perl itself.
 
 L<http://github.com/tadam/Test-Mock-LWP-Dispatch>
 L<Test::Mock::LWP>
+L<LWP::UserAgent>
 
 =cut
 
