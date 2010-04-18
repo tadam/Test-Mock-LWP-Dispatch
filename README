@@ -18,6 +18,9 @@ SYNOPSIS
          my $ua = LWP::UserAgent‐>new;
          $ua‐>map(...);
 
+DESCRIPTION
+       See Test::Mock::LWP::Dispatch POD documentation.
+
 AUTHORS
        Yury Zavarin "yury.zavarin@gmail.com".
 
