@@ -43,7 +43,7 @@ you can solve your problems with this module too.
 
 use base qw(Exporter Test::MockObject);
 
-our $VERSION = 0.0.1;
+our $VERSION = 0.02;
 our @EXPORT = qw($mock_ua);
 our @EXPORT_OK = @EXPORT;
 
@@ -63,20 +63,22 @@ BEGIN {
 
 =over 4
 
-=item request($req)
+=item simple_request($req)
 
 This is only method of LWP::UserAgent that mocked. When you make $ua->get(...)
 or $ua->head(...) or just get() from LWP::Simple, at some point calls
-C<request()> method. So for controlling responses to your requests it is only method needed to mock.
+C<simple_request()> method. So for controlling responses to your requests it is
+only method needed to mock.
 
-In this module C<request()> loops through your local and global mappings (in this order) and returns response on a first matched mapping. If no matched C<request()>
-return HTTP::Response with 404 code.
+In this module C<simple_request()> loops through your local and global mappings
+(in this order) and returns response on a first matched mapping. If no matched
+C<simple_request()> returns HTTP::Response with 404 code.
 
 Be accurate: method loops through mappings in order of adding these mappings.
 
 =cut
 
-    sub request {
+    sub simple_request {
         my $mo = shift;
         my $in_req = shift;
 
@@ -226,10 +228,10 @@ Deletes all mappings.
     bless $mock_ua, __PACKAGE__;
     $mock_ua->fake_module(
         'LWP::UserAgent',
-         request   => \&request,
-         map       => \&map,
-         unmap     => \&unmap,
-         unmap_all => \&unmap_all,
+         simple_request => \&simple_request,
+         map            => \&map,
+         unmap          => \&unmap,
+         unmap_all      => \&unmap_all,
     );
 }
 
