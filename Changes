@@ -1,4 +1,8 @@
 Revision history for Test-Mock-LWP-Dispatch
 
-0.0.1 18/04/2010
+0.02 2010-06-09
+        Mock simple_request() instead of request() (request() calls simple_request())
+        Change VERSION scheme. 
+
+0.0.1 2010-04-18
         First version.
