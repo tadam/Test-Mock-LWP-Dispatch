@@ -224,15 +224,20 @@ Deletes all mappings.
         return 1;
     }
 
-    $mock_ua = Test::MockObject->new;
-    bless $mock_ua, __PACKAGE__;
-    $mock_ua->fake_module(
-        'LWP::UserAgent',
+    my %mock_methods = (
          simple_request => \&simple_request,
          map            => \&map,
          unmap          => \&unmap,
          unmap_all      => \&unmap_all,
     );
+
+    $mock_ua = Test::MockObject->new();
+    $mock_ua->set_isa('LWP::UserAgent');
+
+    $mock_ua->fake_module('LWP::UserAgent', %mock_methods);
+    while (my ($method, $handler) = each %mock_methods) {
+        $mock_ua->mock($method, $handler);
+    }
 }
 
 1;
