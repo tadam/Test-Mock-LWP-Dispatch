@@ -1,8 +1,12 @@
 Revision history for Test-Mock-LWP-Dispatch
 
-0.02 2010-06-09
+{{$NEXT}}
+        Exported $mock_ua->isa('LWP::UserAgent'), tests refactored (thanks to Mike Doherty).
+        Uses Dist::Zilla instead of Module::Build.
+
+0.02    Wed Jun 09, 2010
         Mock simple_request() instead of request() (request() calls simple_request())
         Change VERSION scheme. 
 
-0.0.1 2010-04-18
+0.0.1   Sun Apr 18, 2010
         First version.

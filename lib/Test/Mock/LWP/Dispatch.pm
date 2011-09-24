@@ -3,9 +3,7 @@ package Test::Mock::LWP::Dispatch;
 use strict;
 use warnings;
 
-=head1 NAME
-
-Test::Mock::LWP::Dispatch - mocks LWP::UserAgent and dispatches your requests/responses
+# ABSTRACT: mocks LWP::UserAgent and dispatches your requests/responses
 
 =head1 SYNOPSIS
 
@@ -43,7 +41,6 @@ you can solve your problems with this module too.
 
 use base qw(Exporter Test::MockObject);
 
-our $VERSION = 0.02;
 our @EXPORT = qw($mock_ua);
 our @EXPORT_OK = @EXPORT;
 
@@ -249,14 +246,9 @@ __END__
 This mock object doesn't call C<fake_new()>. So when you prepare response using
 coderef, you can be sure, that "User-Agent" header will be untouched and so on.
 
-=head1 AUTHORS
+=head1 ACKNOWLEDGEMENTS
 
-Yury Zavarin C<yury.zavarin@gmail.com>.
-
-=head1 LICENSE
-
-This library is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+Mike Doherty
 
 =head1 SEE ALSO
 
