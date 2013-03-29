@@ -45,7 +45,7 @@ our @EXPORT = qw($mock_ua);
 our @EXPORT_OK = @EXPORT;
 
 use Carp qw(croak);
-use Data::Dumper;
+use Data::Dumper qw();
 use HTTP::Request;
 use HTTP::Response;
 use LWP::UserAgent;
@@ -87,7 +87,11 @@ Be accurate: method loops through mappings in order of adding these mappings.
             my ($req, $resp) = @{$map};
 
             if (ref($req) eq 'HTTP::Request') {
-                next unless (Dumper($in_req) eq Dumper($req));
+                my $dd = Data::Dumper->new([$in_req]);
+                my $dd_in = Data::Dumper->new([$req]);
+                $dd->Sortkeys(1);
+                $dd_in->Sortkeys(1);
+                next unless ($dd_in->Dump eq $dd->Dump);
             } elsif (ref($req) eq '') {
                next unless ($in_req->uri eq $req);
             } elsif (ref($req) eq 'Regexp') {

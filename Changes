@@ -1,6 +1,10 @@
 Revision history for Test-Mock-LWP-Dispatch
 
 {{$NEXT}}
+        Fixed bug caused by hash keys randomization in bleadperl
+        (see https://rt.cpan.org/Public/Bug/Display.html?id=84280)
+
+0.03    Sat Sep 24, 2011
         Exported $mock_ua->isa('LWP::UserAgent'), tests refactored (thanks to Mike Doherty).
         Uses Dist::Zilla instead of Module::Build.
 
