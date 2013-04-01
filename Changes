@@ -1,6 +1,8 @@
 Revision history for Test-Mock-LWP-Dispatch
 
 {{$NEXT}}
+
+0.05    Mon Apr 01, 2013
         No more Moose in requirements.
 
 0.04    Fri Mar 29, 2013
