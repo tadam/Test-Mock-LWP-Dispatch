@@ -1,6 +1,7 @@
 Revision history for Test-Mock-LWP-Dispatch
 
 {{$NEXT}}
+        No more Moose in requirements.
 
 0.04    Fri Mar 29, 2013
         Fixed bug caused by hash keys randomization in bleadperl
