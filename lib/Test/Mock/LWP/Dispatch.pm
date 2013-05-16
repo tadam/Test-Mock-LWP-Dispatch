@@ -232,13 +232,10 @@ Deletes all mappings.
          unmap_all      => \&unmap_all,
     );
 
-    $mock_ua = Test::MockObject->new();
-    $mock_ua->set_isa('LWP::UserAgent');
-
-    $mock_ua->fake_module('LWP::UserAgent', %mock_methods);
-    while (my ($method, $handler) = each %mock_methods) {
-        $mock_ua->mock($method, $handler);
-    }
+    Test::MockObject->fake_module('LWP::UserAgent', %mock_methods);
+    # The global mock object, can be used directly, or can just create a new
+    # LWP::UserAgent object - that is mocked too.
+    $mock_ua = LWP::UserAgent->new;
 }
 
 1;
