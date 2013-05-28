@@ -43,6 +43,7 @@ use base qw(Exporter Test::MockObject);
 
 our @EXPORT = qw($mock_ua);
 our @EXPORT_OK = @EXPORT;
+our $DEFAULT_REQUEST_HEADERS=0;
 
 use Carp qw(croak);
 use Data::Dumper qw();
@@ -78,6 +79,8 @@ Be accurate: method loops through mappings in order of adding these mappings.
     sub simple_request {
         my $mo = shift;
         my $in_req = shift;
+        $in_req = $mo->prepare_request($in_req)
+          if ( $DEFAULT_REQUEST_HEADERS && $mo->can('prepare_request') );
 
         my $global_maps = $mock_ua->{_maps} || [];
         my $local_maps = $mo->{_maps} || [];
@@ -87,6 +90,8 @@ Be accurate: method loops through mappings in order of adding these mappings.
             my ($req, $resp) = @{$map};
 
             if (ref($req) eq 'HTTP::Request') {
+                $req = $mo->prepare_request($req)
+                  if ( $DEFAULT_REQUEST_HEADERS && $mo->can('prepare_request') );
                 my $dd = Data::Dumper->new([$in_req]);
                 my $dd_in = Data::Dumper->new([$req]);
                 $dd->Sortkeys(1);
@@ -241,6 +246,25 @@ Deletes all mappings.
 1;
 
 __END__
+=head1 SWITCHES
+
+=head2 DEFAULT_REQUEST_HEADERS
+
+LWP::UserAgent sets default headers for requests by calling
+LWP::UserAgent->prepare_request().
+
+This function never gets called when using Test::Mock::LWP::Dispatch 
+due to LWP::UserAgent::simple_request() being overridden.
+
+This makes it impossible to write tests around headers such as User-Agent or an
+Authentication header set through $lwp->default_headers->authorization_basic.
+
+An optional switch has been added which runs prepare_request() against requests
+intercepted by Test::Mock::LWP::Dispatch. 
+
+To enable this switch set the following variable in your test:
+
+$Test::Mock::LWP::Dispatch::DEFAULT_REQUEST_HEADERS=1;
 
 =head1 MISCELLANEOUS
 
