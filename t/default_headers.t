@@ -3,8 +3,7 @@ use strict;
 use warnings;
 use Test::More tests => 4;
 use Test::Mock::LWP::Dispatch;
-$Test::Mock::LWP::Dispatch::DEFAULT_REQUEST_HEADERS=1;
-use Data::Dumper;
+
 my $ua = LWP::UserAgent->new;
 $ua->agent('custom useragent');
 $ua->default_headers->authorization_basic( 'antipasta', 'password' );

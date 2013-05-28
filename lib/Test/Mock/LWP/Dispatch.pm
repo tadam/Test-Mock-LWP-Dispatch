@@ -43,7 +43,7 @@ use base qw(Exporter Test::MockObject);
 
 our @EXPORT = qw($mock_ua);
 our @EXPORT_OK = @EXPORT;
-our $DEFAULT_REQUEST_HEADERS=0;
+our $DEFAULT_REQUEST_HEADERS = 1;
 
 use Carp qw(croak);
 use Data::Dumper qw();
@@ -253,18 +253,15 @@ __END__
 LWP::UserAgent sets default headers for requests by calling
 LWP::UserAgent->prepare_request().
 
-This function never gets called when using Test::Mock::LWP::Dispatch 
-due to LWP::UserAgent::simple_request() being overridden.
+Previous versions (<= 0.05) of Test:Mock::LWP::Dispatch didn't intercept this call
+in overridden C<simple_request()>.
 
-This makes it impossible to write tests around headers such as User-Agent or an
-Authentication header set through $lwp->default_headers->authorization_basic.
+Now Test::Mock::LWP::Dispatch does it by default.
 
-An optional switch has been added which runs prepare_request() against requests
-intercepted by Test::Mock::LWP::Dispatch. 
+If for some reason you want to get back previous behaviour of the module,
+set the following variable off:
 
-To enable this switch set the following variable in your test:
-
-$Test::Mock::LWP::Dispatch::DEFAULT_REQUEST_HEADERS=1;
+$Test::Mock::LWP::Dispatch::DEFAULT_REQUEST_HEADERS = 0;
 
 =head1 MISCELLANEOUS
 
@@ -274,13 +271,17 @@ coderef, you can be sure, that "User-Agent" header will be untouched and so on.
 =head1 ACKNOWLEDGEMENTS
 
 Mike Doherty
+
 Andreas König
+
 Ash Berlin
 
 =head1 SEE ALSO
 
 L<http://github.com/tadam/Test-Mock-LWP-Dispatch>
+
 L<Test::Mock::LWP>
+
 L<LWP::UserAgent>
 
 =cut
