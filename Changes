@@ -2,6 +2,10 @@ Revision history for Test-Mock-LWP-Dispatch
 
 {{$NEXT}}
 
+0.06    Tue May 28, 2013
+        $mock_ua can call get(), thanks to Ash Berlin.
+        Mocked requests contain default headers, thanks to Joe Papperello.
+
 0.05    Mon Apr 01, 2013
         No more Moose in requirements.
 
