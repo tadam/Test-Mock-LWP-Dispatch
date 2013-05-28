@@ -250,6 +250,8 @@ coderef, you can be sure, that "User-Agent" header will be untouched and so on.
 =head1 ACKNOWLEDGEMENTS
 
 Mike Doherty
+Andreas König
+Ash Berlin
 
 =head1 SEE ALSO
 
