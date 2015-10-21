@@ -55,6 +55,7 @@ use Test::MockObject;
 our $mock_ua;
 BEGIN {
     my $default_resp = HTTP::Response->new(404);
+    my $passtrough_resp = \&LWP::UserAgent::simple_request;
 
 
 =head1 METHODS
@@ -194,6 +195,29 @@ Method returns index of your mapping. You can use it in C<unmap>.
         return scalar(@{$mo->{_maps}}) - 1;
     }
 
+=item map_passtrough($req_descr)
+
+Will pass trough the $req_descr to actuall LWF::UserAgent. See L<map> for $req_descr.
+
+Example to let LWP::UserAgent handle all file:// urls, use C<$mock_ua->map_passtrough(qr{^file://});>
+
+=cut
+
+    sub map_passtrough {
+        my $mo = shift;
+
+        my ($req) = @_;
+        if (!defined($req)) {
+            croak "You should pass 1 argument to map_passtrough()";
+        }
+
+        my $resp = sub {
+          &$passtrough_resp($mo, shift);
+        };
+
+        return $mo->map($req, $resp);
+    }
+
 =item unmap($map_index)
 
 Deletes some mapping by index.
@@ -233,6 +257,7 @@ Deletes all mappings.
     my %mock_methods = (
          simple_request => \&simple_request,
          map            => \&map,
+         map_passtrough => \&map_passtrough,
          unmap          => \&unmap,
          unmap_all      => \&unmap_all,
     );
@@ -287,4 +312,3 @@ L<Test::Mock::LWP>
 L<LWP::UserAgent>
 
 =cut
-
