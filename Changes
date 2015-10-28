@@ -1,6 +1,7 @@
 Revision history for Test-Mock-LWP-Dispatch
 
 {{$NEXT}}
+        Added map_passthrough() method, thanks to Slobodan Mišković.
 
 0.06    Tue May 28, 2013
         $mock_ua can call get(), thanks to Ash Berlin.
