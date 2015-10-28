@@ -299,6 +299,8 @@ Ash Berlin
 
 Joe Papperello
 
+Slobodan Mišković
+
 =head1 SEE ALSO
 
 L<http://github.com/tadam/Test-Mock-LWP-Dispatch>
