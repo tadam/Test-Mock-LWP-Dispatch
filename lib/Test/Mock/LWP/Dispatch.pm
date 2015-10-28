@@ -24,18 +24,14 @@ use warnings;
 
 =head1 DESCRIPTION
 
-This module intends for testing a code that heavily uses LWP::UserAgent.
+This module is intended for testing a code that heavily uses LWP::UserAgent.
 
-Assume that function you want to test makes three different request to the server
-and expects to get some content from the server. To test this function you should
-setup request/response mappings for mocked UserAgent and test it.
+Assume that a function you want to test makes three different requests to a server and expects to get some content from the server. To test this function you should setup request/response mappings for mocked UserAgent and test it.
 
-For doing something with mappings, here are methods C<map>, C<unmap> and C<unmap_all>. For controlling context of these mappings (is it applies for all created in your
-code LWP::UserAgent's or only to one specific?) you should call these functions
+For doing something with mappings, here are methods C<map>, C<unmap> and C<unmap_all>. For controlling context of these mappings (whether it applies to all LWP::UserAgent-s created in your code or only to a specific one) you need to call these functions
 for exported C<$mock_ua> object (global mapping) or for newly created LWP::UserAgent (local mappings).
 
-See also on L<Test::Mock::LWP>, it provides mocked LWP objects for you, so probably
-you can solve your problems with this module too.
+See also L<Test::Mock::LWP>, it provides mocked LWP objects for you, so probably you can solve your problems with that module too.
 
 =cut
 
@@ -64,14 +60,9 @@ BEGIN {
 
 =item simple_request($req)
 
-This is only method of LWP::UserAgent that mocked. When you make $ua->get(...)
-or $ua->head(...) or just get() from LWP::Simple, at some point calls
-C<simple_request()> method. So for controlling responses to your requests it is
-only method needed to mock.
+This is the only method of LWP::UserAgent that get mocked. When you call $ua->get(...) or $ua->head(...) or just get() from LWP::Simple, at some point it will call C<simple_request()> method. So there is no need to mock anything else as long as the desired goal is the ability to control responses to your requests.
 
-In this module C<simple_request()> loops through your local and global mappings
-(in this order) and returns response on a first matched mapping. If no matched
-C<simple_request()> returns HTTP::Response with 404 code.
+In this module C<simple_request()> loops through your local and global mappings (in this order) and returns response on a first matched mapping. If no matches found, then C<simple_request()> returns HTTP::Response with 404 code.
 
 Be accurate: method loops through mappings in order of adding these mappings.
 
@@ -124,12 +115,13 @@ Be accurate: method loops through mappings in order of adding these mappings.
 
 =item map($req_descr, $resp_descr)
 
-Using this method you can say what response should be on what request.
+Maps C<$req_descr> to the corresponding C<$resp_descr>.
 
-If you call this method for exported C<$mock_ua> it will make global mappings
-applied for all newly created LWP::UserAgent's. If you call this method for
-separate LWP::UserAgent you created, then this mapping will work only for
-this object.
+C<$req_descr> determines how to match an incoming request with a mapping.
+
+C<$resp_descr> determines what will be returned if the incoming request matches with C<$req_descr>.
+
+Calling this method for exported C<$mock_ua> will make global mappings applied to all newly created LWP::UserAgent-s. Calling this method for a separately created LWP::UserAgent will apply the mapping only to that object.
 
 Request description C<$req_descr> can be:
 
@@ -137,38 +129,33 @@ Request description C<$req_descr> can be:
 
 =item string
 
-Uri for exact matching with incoming request uri in C<request()>.
+Represents uri for exact match with the incoming request uri.
 
 =item regexp
 
-Regexp on what incoming request uri will match.
+Incoming request uri will be checked against this regexp.
 
 =item code
 
-You can pass arbitrary coderef, that takes incoming HTTP::Request and returns
-true if this request matched.
+An arbitrary coderef that takes incoming HTTP::Request and returns true if this request matched.
 
 =item HTTP::Request object
 
-If you pass such object, then request will compare that incoming request
-exactly the same that you passed in C<map()> (this means, that all query
-parameters, all headers and so on must be identical).
+Incoming request will match with this object if they are exactly the same: all the query parameters, headers and so on must be identical.
 
 =back
 
-Response description C<$resp_descr>, that will be returned if incoming request
-to C<request()> matches with C<$req_descr>, can be:
+Response description C<$resp_descr> can be:
 
 =over 4
 
 =item HTTP::Response object
 
-Ready to return HTTP::Response object.
+This object will be returned.
 
 =item code
 
-Arbitrary coderef, that takes incoming request as parameter and returns
-HTTP::Response object.
+An arbitrary coderef that takes incoming request as parameter and returns HTTP::Response object.
 
 =back
 
@@ -199,7 +186,7 @@ Method returns index of your mapping. You can use it in C<unmap>.
 
 Will pass through the $req_descr to actual LWP::UserAgent. See L<map> for $req_descr.
 
-Example to let LWP::UserAgent handle all file:// urls, use C<$mock_ua->map_passtrough(qr{^file://});>
+Example to let LWP::UserAgent handle all file:// urls: C<$mock_ua-E<gt>map_passtrough(qr{^file://});>
 
 =cut
 
@@ -216,7 +203,7 @@ Example to let LWP::UserAgent handle all file:// urls, use C<$mock_ua->map_passt
 
 =item unmap($map_index)
 
-Deletes some mapping by index.
+Deletes a mapping by index.
 
 =cut
 
@@ -271,23 +258,19 @@ __END__
 
 =head2 DEFAULT_REQUEST_HEADERS
 
-LWP::UserAgent sets default headers for requests by calling
-LWP::UserAgent->prepare_request().
+LWP::UserAgent sets default headers for requests by calling LWP::UserAgent->prepare_request().
 
-Previous versions (<= 0.05) of Test:Mock::LWP::Dispatch didn't intercept this call
-in overridden C<simple_request()>.
+Previous versions (<= 0.05) of Test:Mock::LWP::Dispatch didn't intercept this call in overridden C<simple_request()>.
 
 Now Test::Mock::LWP::Dispatch does it by default.
 
-If for some reason you want to get back previous behaviour of the module,
-set the following variable off:
+If for some reason you want to get back the previous behaviour of the module, set the following variable off:
 
 $Test::Mock::LWP::Dispatch::DEFAULT_REQUEST_HEADERS = 0;
 
 =head1 MISCELLANEOUS
 
-This mock object doesn't call C<fake_new()>. So when you prepare response using
-coderef, you can be sure, that "User-Agent" header will be untouched and so on.
+This mock object doesn't call C<fake_new()>. So when you prepare response using coderef, you can be sure that "User-Agent" header will be untouched and so on.
 
 =head1 ACKNOWLEDGEMENTS
 
