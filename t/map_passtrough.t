@@ -13,7 +13,7 @@ my $url = "file://" . catfile($Bin, $Script);
 
 is($ua->get($url)->code, 404, 'before map');
 
-my $index1 = $ua->map_passtrough(qr{^file://});
+my $index1 = $ua->map_passthrough(qr{^file://});
 my $resp = $ua->get($url);
 is($resp->code, 200, 'after map');
 like($resp->content, qr/dummy_marker_of_this_file_123/,
