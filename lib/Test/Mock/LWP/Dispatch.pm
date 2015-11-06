@@ -186,7 +186,7 @@ Method returns index of your mapping. You can use it in C<unmap>.
 
 Will pass through the $req_descr to actual LWP::UserAgent. See L<map> for $req_descr.
 
-Example to let LWP::UserAgent handle all file:// urls: C<$mock_ua-E<gt>map_passtrough(qr{^file://});>
+Example to let LWP::UserAgent handle all file:// urls: C<$mock_ua-E<gt>map_passthrough(qr{^file://});>
 
 =cut
 
@@ -238,11 +238,11 @@ Deletes all mappings.
     }
 
     my %mock_methods = (
-         simple_request => \&simple_request,
-         map            => \&map,
-         map_passtrough => \&map_passthrough,
-         unmap          => \&unmap,
-         unmap_all      => \&unmap_all,
+         simple_request  => \&simple_request,
+         map             => \&map,
+         map_passthrough => \&map_passthrough,
+         unmap           => \&unmap,
+         unmap_all       => \&unmap_all,
     );
 
     Test::MockObject->fake_module('LWP::UserAgent', %mock_methods);
