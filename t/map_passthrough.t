@@ -10,6 +10,7 @@ use FindBin qw($Bin $Script);
 
 my $ua = LWP::UserAgent->new;
 my $url = "file://" . catfile($Bin, $Script);
+$url =~ s!\\!/!g; # fix path names on Windows
 
 is($ua->get($url)->code, 404, 'before map');
 
