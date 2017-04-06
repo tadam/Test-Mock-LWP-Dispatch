@@ -50,7 +50,6 @@ use Test::MockObject;
 
 our $mock_ua;
 BEGIN {
-    my $default_resp = HTTP::Response->new(404);
     my $orig_simple_request_fn = \&LWP::UserAgent::simple_request;
 
 
@@ -76,7 +75,8 @@ Be accurate: method loops through mappings in order of adding these mappings.
 
         my $global_maps = $mock_ua->{_maps} || [];
         my $local_maps = $mo->{_maps} || [];
-        my $matched_resp = $default_resp;
+        my $matched_resp = HTTP::Response->new(404, __PACKAGE__ . ' No Mapping Found');
+        $matched_resp->request($in_req);
         foreach my $map (@{$local_maps}, @{$global_maps}) {
             next unless (defined($map));
             my ($req, $resp) = @{$map};
@@ -90,7 +90,7 @@ Be accurate: method loops through mappings in order of adding these mappings.
                 $dd_in->Sortkeys(1);
                 next unless ($dd_in->Dump eq $dd->Dump);
             } elsif (ref($req) eq '') {
-               next unless ($in_req->uri eq $req);
+                next unless ($in_req->uri eq $req);
             } elsif (ref($req) eq 'Regexp') {
                 next unless ($in_req->uri =~ $req);
             } elsif (ref($req) eq 'CODE') {
@@ -108,8 +108,9 @@ Be accurate: method loops through mappings in order of adding these mappings.
         } elsif (ref($matched_resp) eq 'CODE') {
             return $matched_resp->($in_req);
         } else {
-            warn "Unknown type of predefined response: " . ref($matched_resp);
-            return $default_resp;
+            my $message = "Unknown type of predefined response: " . ref($matched_resp);
+            warn $message;
+            return HTTP::Response->new(500, __PACKAGE__ . " $message");
         }
     }
 
